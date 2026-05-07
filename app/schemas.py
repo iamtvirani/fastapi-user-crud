@@ -12,19 +12,31 @@
 #     class Config:
 #         orm_mode = True
 
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 
-from pydantic import BaseModel
-
-# request schema
+# Create request
 class UserCreate(BaseModel):
     name: str
-    email: str
+    email: EmailStr
+    password: str
 
-# response schema
+
+# Update request
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+
+# Response schema
 class UserResponse(BaseModel):
     id: int
     name: str
-    email: str
+    email: EmailStr
 
     class Config:
-        from_attributes = True   # Pydantic v2 (important!)
+        from_attributes = True
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str

@@ -24,9 +24,9 @@ def update_user(db: Session, user_id: int, user_data: schemas.UserUpdate):
     if not user:
         return None
 
-    if user_data.name:
+    if user_data.name is not None:
         user.name = user_data.name
-    if user_data.email:
+    if user_data.email is not None:
         user.email = user_data.email
 
     db.commit()

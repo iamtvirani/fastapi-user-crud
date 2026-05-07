@@ -92,20 +92,39 @@
 # @app.get("/")
 # def home():
 #     return {"message": "PostgreSQL Connected 🚀"}
-
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from app.database import engine
 from app import models
-from app.routers import user
+from app.auth.auth_router import router as auth_router
+from app.auth.dependencies import get_current_user
 
-# Create DB tables
-models.Base.metadata.create_all(bind=engine)
+# Create app
+app = FastAPI(
+    title="FastAPI Backend",
+    version="1.0.0"
+)
 
-app = FastAPI(title="FastAPI Backend")
+# 🔥 Create DB tables on startup (new lifespan way)
+@app.on_event("startup")
+def on_startup():
+    print("🚀 Creating database tables...")
+    models.Base.metadata.create_all(bind=engine)
 
-# include routers
-app.include_router(user.router)
+# API Version prefix
+API_PREFIX = "/api/v1"
 
+# Include Routers
+app.include_router(auth_router, prefix=API_PREFIX)
+
+# Health check
 @app.get("/")
 def root():
     return {"message": "API is running 🚀"}
+
+# Protected route example
+@app.get(f"{API_PREFIX}/profile")
+def get_profile(user_id: int = Depends(get_current_user)):
+    return {
+        "message": "You are authorized 🎉",
+        "user_id": user_id
+    }
